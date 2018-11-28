@@ -1,16 +1,16 @@
-import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
+import shader.RadialColorShader;
+import shader.SolidColorShader;
+import shapes.Rectangle;
+import util.Vec4;
 
 import java.nio.*;
-import java.util.Arrays;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
@@ -18,16 +18,16 @@ public class Main {
 
     private long window;
     private int vbo;
-    private Shader shader;
+    private Rectangle rect;
 
     public Main(){
-        shader = new Shader("base", "base") {};
+        rect = new Rectangle(new RadialColorShader(800, 600));
+
         window = -1L;
         vbo = -1;
     }
 
     private void run() {
-//        System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
         init();
         load();
@@ -35,7 +35,7 @@ public class Main {
 
         glfwFreeCallbacks(window);
         glfwDestroyWindow(window);
-        shader.dispose();
+        rect.dispose();
 
         glfwTerminate();
         glfwSetErrorCallback(null).free();
@@ -58,6 +58,11 @@ public class Main {
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
             if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
                 glfwSetWindowShouldClose(window, true);
+            else if (key == GLFW_KEY_A && action == GLFW_PRESS)
+                ((RadialColorShader)rect.getShader()).setInnerColor(new Vec4(1f, 0f, 0f, 1f));
+            else if (key == GLFW_KEY_S && action == GLFW_PRESS)
+                ((RadialColorShader)rect.getShader()).setOuterColor(new Vec4(0f, 1f, 0f, 1f));
+
         });
 
         try ( MemoryStack stack = stackPush() ) {
@@ -89,40 +94,7 @@ public class Main {
     }
 
     private void load() {
-
-        System.out.println(glGetString(GL_VERSION));
-        float f[] = {
-                //Vertex Positions
-                -1f, -1f, 0f, 1f,
-                -1f, 1f, 0f, 1f,
-                1f, 1f, 0f, 1f,
-                1f, 1f, 0f, 1f,
-                1f, -1f, 0f, 1f,
-                -1f, -1f, 0f, 1f,
-
-                //Colors
-                1f, 1f, 0f, 1f,
-                1f, 0f, 0f, 1f,
-                0f, 1f, 0f, 1f,
-                1f, 0f, 1f, 1f,
-                1f, 1f, 0f, 1f,
-                1f, 0f, 1f, 1f
-        };
-
-        vbo = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, f, GL_STATIC_DRAW);
-
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0L);
-        glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, 6*4*4L);
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        shader.load();
-        shader.use();
+        rect.load();
     }
 
     private void loop() {
@@ -132,16 +104,7 @@ public class Main {
         while ( !glfwWindowShouldClose(window) ) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            shader.use();
-
-            glEnableVertexAttribArray(0);
-            glEnableVertexAttribArray(1);
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-
-            glUseProgram(0);
-            glDisableVertexAttribArray(0);
-            glDisableVertexAttribArray(1);
+            rect.draw();
 
             glfwSwapBuffers(window);
             glfwPollEvents();

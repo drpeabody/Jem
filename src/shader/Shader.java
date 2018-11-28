@@ -1,3 +1,5 @@
+package shader;
+
 import org.lwjgl.opengl.GL11;
 
 import java.io.BufferedReader;
@@ -11,9 +13,11 @@ public abstract class Shader {
     private String vertexCode, fragmentCode;
     private int programID;
     private int vert, frag;
+    private int transMatLoc, rotMatLoc, scaleMatLoc;
 
     public Shader(String fragFile, String vertFile){
         programID = vert = frag = -1;
+        transMatLoc = rotMatLoc = scaleMatLoc = -1;
         fragmentCode = getCodeFrom(fragFile + ".frag");
         vertexCode = getCodeFrom(vertFile + ".vert");
     }
@@ -31,11 +35,13 @@ public abstract class Shader {
         if(glGetShaderi(frag, GL_COMPILE_STATUS) == GL11.GL_FALSE){
             System.out.println("Error while Compiling Shader:");
             System.out.println(glGetShaderInfoLog(frag));
+            System.exit(1);
         }
 
         if(glGetShaderi(vert, GL_COMPILE_STATUS) == GL11.GL_FALSE){
             System.out.println("Error while Compiling Shader:");
             System.out.println(glGetShaderInfoLog(vert));
+            System.exit(1);
         }
 
         glAttachShader(programID, vert);
@@ -45,7 +51,12 @@ public abstract class Shader {
         if(glGetProgrami(programID, GL_LINK_STATUS) == GL11.GL_FALSE){
             System.out.println("Error while Linking Shader:");
             System.out.println(glGetProgramInfoLog(programID));
+            System.exit(1);
         }
+
+        transMatLoc = glGetUniformLocation(programID, "translation");
+        rotMatLoc = glGetUniformLocation(programID, "rotation");
+        scaleMatLoc = glGetUniformLocation(programID, "scaling");
 
         glDeleteShader(vert);
         glDeleteShader(frag);
@@ -57,6 +68,8 @@ public abstract class Shader {
         glDetachShader(programID, vert);
         glDetachShader(programID, frag);
         glDeleteProgram(programID);
+        programID = vert = frag = -1;
+        transMatLoc = rotMatLoc = scaleMatLoc = -1;
     }
 
     public void use(){
@@ -79,6 +92,20 @@ public abstract class Shader {
         } catch (IOException e) { e.printStackTrace(); }
 
         return buff.toString();
+    }
+
+    public int getProgramID() {
+        return programID;
+    }
+
+    public void updateTranslation(float f[]){
+        glUniformMatrix4fv(transMatLoc, false, f);
+    }
+    public void updateRotation(float f[]){
+        glUniformMatrix4fv(rotMatLoc, false, f);
+    }
+    public void updateScaling(float f[]){
+        glUniformMatrix4fv(scaleMatLoc, false, f);
     }
 
 }
