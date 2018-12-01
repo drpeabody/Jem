@@ -5,25 +5,29 @@ import util.Vec4;
 
 public class SolidColorShader extends Shader {
 
-    int colLoc = -1;
+    private int colLoc;
+    private Vec4 color;
 
     public SolidColorShader() {
         super("solidColor", "base");
+        colLoc = -1;
+        color = new Vec4();
+    }
+    public SolidColorShader(Vec4 v){
+        super("solidColor", "base");
+        colLoc = -1;
+        this.color = v;
     }
 
     @Override
     public void load() {
         super.load();
         colLoc = GL20.glGetUniformLocation(getProgramID(), "col");
+        setColor(color);
     }
 
     public void setColor(Vec4 color){
         use();
-        GL20.glUniform4fv(colLoc, new float[] {
-            color.getR(),
-            color.getG(),
-            color.getB(),
-            color.getA(),
-        });
+        GL20.glUniform4fv(colLoc, color.getArray());
     }
 }

@@ -17,16 +17,17 @@ public class Vec4 {
     public float getR() {
         return r;
     }
-
     public float getG() {
         return g;
     }
-
     public float getB() {
         return b;
     }
-
     public float getA() {
         return a;
+    }
+
+    public float[] getArray(){
+        return new float[]{r,g,b,a};
     }
 }

@@ -13,11 +13,11 @@ public abstract class Shader {
     private String vertexCode, fragmentCode;
     private int programID;
     private int vert, frag;
-    private int transMatLoc, rotMatLoc, scaleMatLoc;
+    private int transMatLoc, rotMatLoc, scaleMatLoc, camMatLoc;
 
     public Shader(String fragFile, String vertFile){
         programID = vert = frag = -1;
-        transMatLoc = rotMatLoc = scaleMatLoc = -1;
+        transMatLoc = rotMatLoc = scaleMatLoc = camMatLoc = -1;
         fragmentCode = getCodeFrom(fragFile + ".frag");
         vertexCode = getCodeFrom(vertFile + ".vert");
     }
@@ -57,6 +57,7 @@ public abstract class Shader {
         transMatLoc = glGetUniformLocation(programID, "translation");
         rotMatLoc = glGetUniformLocation(programID, "rotation");
         scaleMatLoc = glGetUniformLocation(programID, "scaling");
+        camMatLoc = glGetUniformLocation(programID, "camera");
 
         glDeleteShader(vert);
         glDeleteShader(frag);
@@ -75,6 +76,7 @@ public abstract class Shader {
     public void use(){
         glUseProgram(programID);
     }
+    public void unbind(){ glUseProgram(0); }
 
     private String getCodeFrom(String fileName){
         StringBuilder buff = new StringBuilder();
@@ -106,6 +108,9 @@ public abstract class Shader {
     }
     public void updateScaling(float f[]){
         glUniformMatrix4fv(scaleMatLoc, false, f);
+    }
+    public void updateCamera(float f[]){
+        glUniformMatrix4fv(camMatLoc, false, f);
     }
 
 }
