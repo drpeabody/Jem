@@ -8,6 +8,7 @@ import shapes.Shape;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -19,11 +20,15 @@ public abstract class Jem {
     private long window;
     private Camera camera;
     private HashMap<Shader, ArrayList<Shape>> table;
+    private float time;
+    private CopyOnWriteArrayList<Animator> anims;
 
     public Jem(Camera c){
         window = -1L;
         camera = c;
         table = new HashMap<>();
+        time = 0f;
+        anims = new CopyOnWriteArrayList<>();
     }
 
     protected void add(Shape s){
@@ -37,17 +42,14 @@ public abstract class Jem {
             a.add(s);
         }
     }
-
     protected void remove(Shape s){
         ArrayList<Shape> a = table.get(s.getShader());
         if(a != null)
             a.remove(s);
     }
-
     protected long getWindow(){
         return window;
     }
-
     protected Camera getCamera() {
         return camera;
     }
@@ -72,7 +74,8 @@ public abstract class Jem {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-        window = glfwCreateWindow(800, 600, "Hello World!", NULL, NULL);
+        window = glfwCreateWindow((int)camera.getScreenWidth(),
+                (int)camera.getScreenHeight(), "Hello World!", NULL, NULL);
         if ( window == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
 
@@ -83,6 +86,11 @@ public abstract class Jem {
                 (vidmode.width() - pWidth[0]) / 2,
                 (vidmode.height() - pHeight[0]) / 2
         );
+
+        glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+            if(action == GLFW_PRESS) keyPressed(key);
+            else if(action == GLFW_RELEASE) keyReleased(key);
+        });
 
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1);
@@ -100,6 +108,13 @@ public abstract class Jem {
         load();
     }
 
+    public void keyPressed(int key){
+
+    }
+    public void keyReleased(int key){
+
+    }
+
     public void run() {
         init();
         loop();
@@ -107,19 +122,35 @@ public abstract class Jem {
     }
 
     private void draw(){
+        long l = System.currentTimeMillis();
+        anims.forEach(s -> {
+            boolean completed  = s.update(time);
+            if(completed){
+                anims.remove(s);
+            }
+        });
         update();
         table.forEach((shader, shapes) -> {
             shader.use();
+            shader.setTime(time);
             shader.updateCamera(camera.getMatrix());
             shapes.forEach(Shape::draw);
         });
+        time += (float)(System.currentTimeMillis() - l) / 100f;
     }
-
     private void loop(){
         while ( !glfwWindowShouldClose(getWindow()) ) {
             draw();
             glfwSwapBuffers(getWindow());
             glfwPollEvents();
         }
+    }
+
+    protected void animate(Animatable a, float duration){
+        anims.add(new Animator(a, time, duration));
+    }
+
+    protected void animate(Animatable a, float duration, float waitUntil){
+        anims.add(new Animator(a, time + waitUntil, duration));
     }
 }

@@ -1,7 +1,6 @@
 
-import shader.PulsatingColorShader;
-import shader.RadialColorShader;
-import shader.SolidColorShader;
+import shader.PulsatingColor;
+import shader.RadialColor;
 import shapes.Circle;
 import shapes.Rectangle;
 import util.Camera;
@@ -22,9 +21,9 @@ public class Main extends Jem {
 
     private Main(){
         super(new Camera(800, 600));
-        circle = new Circle(500, 1f, new RadialColorShader());
+        circle = new Circle(500, 1f, new RadialColor());
         rect = new Rectangle(new Vec3(), new Vec3(), 0.2f, 0.2f,
-                new PulsatingColorShader());
+                new PulsatingColor());
     }
 
     public void dispose(){
@@ -35,46 +34,53 @@ public class Main extends Jem {
 
     public void load() {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glfwSetKeyCallback(getWindow(), (window, key, scancode, action, mods) -> {
-            if (key == GLFW_KEY_A && action == GLFW_PRESS)
-                ((RadialColorShader)circle.getShader())
-                        .setInnerColor(new Vec4(1f, 0f, 0f, 1f));
-            else if (key == GLFW_KEY_S && action == GLFW_PRESS)
-                ((RadialColorShader)circle.getShader())
-                        .setOuterColor(new Vec4(0f, 1f, 0f, 1f));
-            else if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
-                bMoveCamLeft = true;
-            else if(key == GLFW_KEY_LEFT && action == GLFW_RELEASE)
-                bMoveCamLeft = false;
-            else if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-                bMoveCamRight = true;
-            else if(key == GLFW_KEY_RIGHT && action == GLFW_RELEASE)
-                bMoveCamRight = false;
-            else if (key == GLFW_KEY_UP && action == GLFW_PRESS)
-                bMoveCamUp  = true;
-            else if(key == GLFW_KEY_UP && action == GLFW_RELEASE)
-                bMoveCamUp = false;
-            else if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-                bMoveCamDown = true;
-            else if(key == GLFW_KEY_DOWN && action == GLFW_RELEASE)
-                bMoveCamDown = false;
-        });
         rect.load();
         circle.load();
         add(circle);
         add(rect);
     }
 
-    float time = 0f;
+    @Override
+    public void keyPressed(int key) {
+        switch(key) {
+            case GLFW_KEY_A:
+                animate( (x) ->
+                        ((RadialColor) circle.getShader())
+                        .setOuterColor(new Vec4(1f-x, 0f, 0f, 1f)),
+                1f, 1f); break;
+            case GLFW_KEY_S:
+                ((RadialColor) circle.getShader())
+                        .setOuterColor(new Vec4(0f, 1f, 0f, 1f)); break;
+            case GLFW_KEY_LEFT:
+                bMoveCamLeft = true; break;
+            case GLFW_KEY_RIGHT:
+                bMoveCamRight = true; break;
+            case GLFW_KEY_UP:
+                bMoveCamUp = true; break;
+            case GLFW_KEY_DOWN:
+                bMoveCamDown = true; break;
+        }
+    }
+    @Override
+    public void keyReleased(int key) {
+        switch(key){
+            case GLFW_KEY_LEFT:
+                bMoveCamLeft = false; break;
+            case GLFW_KEY_RIGHT:
+                bMoveCamRight = false; break;
+            case GLFW_KEY_UP:
+                bMoveCamUp = false; break;
+            case GLFW_KEY_DOWN:
+                bMoveCamDown = false; break;
+        }
+    }
 
     @Override
     public void update() {
-        time += 0.001f;
-        float dx = -0.0005f * ((bMoveCamLeft?-1f:1f) +(bMoveCamRight?1f:-1f));
-        float dy = -0.0005f * ((bMoveCamDown?-1f:1f) +(bMoveCamUp?1f:-1f));
+        float dx = -0.0005f * ((bMoveCamLeft?-1f:1f) + (bMoveCamRight?1f:-1f));
+        float dy = -0.0005f * ((bMoveCamDown?-1f:1f) + (bMoveCamUp?1f:-1f));
         getCamera().moveCam(dx, dy);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        ((PulsatingColorShader)rect.getShader()).setTime(time);
     }
 
     public static void main(String[] args) {

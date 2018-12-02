@@ -2,7 +2,7 @@ package shapes;
 
 import org.lwjgl.opengl.GL11;
 import shader.Shader;
-import shader.SolidColorShader;
+import shader.SolidColor;
 import util.Vec3;
 
 public class Circle extends Shape {
@@ -11,10 +11,10 @@ public class Circle extends Shape {
     private float radius;
 
     public Circle(){
-        this(3, 1f, new SolidColorShader());
+        this(3, 1f, new SolidColor());
     }
     public Circle(int res, float radius){
-        this(res, radius, new SolidColorShader());
+        this(res, radius, new SolidColor());
     }
     public Circle(int res, float radius, Shader shader){
         super(new Vec3(), new Vec3(), new Vec3(1f, 1f, 1f), shader);

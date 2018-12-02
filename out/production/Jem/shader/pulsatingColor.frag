@@ -1,6 +1,5 @@
 #version 330
 
-//in vec4 fragPos;
 out vec4 outputColor;
 
 uniform vec4 startColor = vec4(1.0, 1.0, 1.0, 1.0);

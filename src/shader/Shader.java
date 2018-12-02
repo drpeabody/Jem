@@ -1,10 +1,12 @@
 package shader;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Hashtable;
 
 import static org.lwjgl.opengl.GL20.*;
 
@@ -14,15 +16,20 @@ public abstract class Shader {
     private int programID;
     private int vert, frag;
     private int transMatLoc, rotMatLoc, scaleMatLoc, camMatLoc;
+    private int timeLoc;
 
-    public Shader(String fragFile, String vertFile){
+    private Hashtable<String, Integer> uniforms;
+
+    Shader(String fragFile, String vertFile){
         programID = vert = frag = -1;
         transMatLoc = rotMatLoc = scaleMatLoc = camMatLoc = -1;
+        timeLoc = -1;
         fragmentCode = getCodeFrom(fragFile + ".frag");
         vertexCode = getCodeFrom(vertFile + ".vert");
+        uniforms = null;
     }
 
-    public void load(){
+    public final void load(){
         programID = glCreateProgram();
         frag = glCreateShader(GL_FRAGMENT_SHADER);
         vert = glCreateShader(GL_VERTEX_SHADER);
@@ -58,9 +65,13 @@ public abstract class Shader {
         rotMatLoc = glGetUniformLocation(programID, "rotation");
         scaleMatLoc = glGetUniformLocation(programID, "scaling");
         camMatLoc = glGetUniformLocation(programID, "camera");
+        timeLoc = GL20.glGetUniformLocation(getProgramID(), "time");
 
         glDeleteShader(vert);
         glDeleteShader(frag);
+
+        uniforms = new Hashtable<>();
+        loadUniforms();
     }
     
     public void dispose(){
@@ -96,21 +107,39 @@ public abstract class Shader {
         return buff.toString();
     }
 
-    public int getProgramID() {
+    private int getProgramID() {
         return programID;
     }
 
+    void registerUniform(String name){
+        uniforms.put(name, GL20.glGetUniformLocation(getProgramID(), name));
+    }
+    int getUniformLoc(String name){
+        Integer i = uniforms.get(name);
+        return (i == null)? -1: i;
+    }
+
+    public abstract void loadUniforms();
+
     public void updateTranslation(float f[]){
+        use();
         glUniformMatrix4fv(transMatLoc, false, f);
     }
     public void updateRotation(float f[]){
+        use();
         glUniformMatrix4fv(rotMatLoc, false, f);
     }
     public void updateScaling(float f[]){
+        use();
         glUniformMatrix4fv(scaleMatLoc, false, f);
     }
     public void updateCamera(float f[]){
+        use();
         glUniformMatrix4fv(camMatLoc, false, f);
+    }
+    public void setTime(float f){
+        use();
+        GL20.glUniform1f(timeLoc, f);
     }
 
 }

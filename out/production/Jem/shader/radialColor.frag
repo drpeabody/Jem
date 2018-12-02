@@ -8,5 +8,5 @@ uniform vec4 ring = vec4(1.0, 0.0, 0.0, 1.0);
 
 void main(){
     float v = length(vec2(fragPos.xy));
-    outputColor = ring * v + col * (1 - v);
+    outputColor = ring * v + col * (1-v);
 }
