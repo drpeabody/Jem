@@ -26,10 +26,10 @@ public abstract class Jem {
         table = new HashMap<>();
     }
 
-    public void add(Shape s){
-        ArrayList a = table.get(s.getShader());
+    protected void add(Shape s){
+        ArrayList<Shape> a = table.get(s.getShader());
         if(a == null){
-            a = new ArrayList();
+            a = new ArrayList<>();
             a.add(s);
             table.put(s.getShader(), a);
         }
@@ -38,8 +38,8 @@ public abstract class Jem {
         }
     }
 
-    public void remove(Shape s){
-        ArrayList a = table.get(s.getShader());
+    protected void remove(Shape s){
+        ArrayList<Shape> a = table.get(s.getShader());
         if(a != null)
             a.remove(s);
     }
@@ -48,7 +48,7 @@ public abstract class Jem {
         return window;
     }
 
-    public Camera getCamera() {
+    protected Camera getCamera() {
         return camera;
     }
 
@@ -106,7 +106,7 @@ public abstract class Jem {
         dispose();
     }
 
-    public void draw(){
+    private void draw(){
         update();
         table.forEach((shader, shapes) -> {
             shader.use();

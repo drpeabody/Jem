@@ -1,4 +1,5 @@
 
+import shader.PulsatingColorShader;
 import shader.RadialColorShader;
 import shader.SolidColorShader;
 import shapes.Circle;
@@ -16,13 +17,14 @@ public class Main extends Jem {
     private Circle circle;
     private Rectangle rect;
 
-    boolean bMoveCamLeft = false, bMoveCamRight = false;
+    private boolean bMoveCamLeft = false, bMoveCamRight = false,
+            bMoveCamUp = false, bMoveCamDown = false;
 
     private Main(){
         super(new Camera(800, 600));
         circle = new Circle(500, 1f, new RadialColorShader());
         rect = new Rectangle(new Vec3(), new Vec3(), 0.2f, 0.2f,
-                new SolidColorShader(new Vec4(1f, 1f, 0f, 1f)));
+                new PulsatingColorShader());
     }
 
     public void dispose(){
@@ -48,6 +50,14 @@ public class Main extends Jem {
                 bMoveCamRight = true;
             else if(key == GLFW_KEY_RIGHT && action == GLFW_RELEASE)
                 bMoveCamRight = false;
+            else if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+                bMoveCamUp  = true;
+            else if(key == GLFW_KEY_UP && action == GLFW_RELEASE)
+                bMoveCamUp = false;
+            else if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+                bMoveCamDown = true;
+            else if(key == GLFW_KEY_DOWN && action == GLFW_RELEASE)
+                bMoveCamDown = false;
         });
         rect.load();
         circle.load();
@@ -55,11 +65,16 @@ public class Main extends Jem {
         add(rect);
     }
 
+    float time = 0f;
+
     @Override
     public void update() {
-        float dx = 0.0005f * ((bMoveCamLeft?-1f:1f) +(bMoveCamRight?1f:-1f));
-        getCamera().moveCam(dx, 0f);
+        time += 0.001f;
+        float dx = -0.0005f * ((bMoveCamLeft?-1f:1f) +(bMoveCamRight?1f:-1f));
+        float dy = -0.0005f * ((bMoveCamDown?-1f:1f) +(bMoveCamUp?1f:-1f));
+        getCamera().moveCam(dx, dy);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        ((PulsatingColorShader)rect.getShader()).setTime(time);
     }
 
     public static void main(String[] args) {

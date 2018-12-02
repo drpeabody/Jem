@@ -77,7 +77,6 @@ public abstract class Shape {
     }
 
     public void draw(){
-//        shader.use();
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
         GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0L);
         GL20.glEnableVertexAttribArray(0);

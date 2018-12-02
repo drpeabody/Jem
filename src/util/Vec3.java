@@ -1,16 +1,14 @@
 package util;
 
 public class Vec3 {
-    float x, y, z;
+    private float x, y, z;
 
     public Vec3(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
-    public Vec3(){
-        this.x = this.y = this.z = 0.0f;
-    }
+    public Vec3(){}
 
     public float getX() {
         return x;

@@ -6,10 +6,9 @@ public class Camera {
 
     public Camera(int screenWidth, int screenHeight){
         aspectRatio = (float)(screenHeight) / (float) (screenWidth);
-        x = y = 0f;
     }
 
-    public float[] getMatrix(){
+    float[] getMatrix(){
         return new float[]{ //We send the transposed matrix
             aspectRatio, 0f, 0f, 0f,
             0f, 1f, 0f, 0f,
