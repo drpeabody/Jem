@@ -36,6 +36,8 @@ public class Main extends Jem {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         rect.load();
         circle.load();
+        ((RadialColor)circle.getShader()).setInnerColor(new Vec4(0f,0f,0f,0f));
+        ((RadialColor)circle.getShader()).setOuterColor(new Vec4(0.6f,0.6f,0.7f,0f));
         add(circle);
         add(rect);
     }
@@ -43,14 +45,6 @@ public class Main extends Jem {
     @Override
     public void keyPressed(int key) {
         switch(key) {
-            case GLFW_KEY_A:
-                animate( (x) ->
-                        ((RadialColor) circle.getShader())
-                        .setOuterColor(new Vec4(1f-x, 0f, 0f, 1f)),
-                1f, 1f); break;
-            case GLFW_KEY_S:
-                ((RadialColor) circle.getShader())
-                        .setOuterColor(new Vec4(0f, 1f, 0f, 1f)); break;
             case GLFW_KEY_LEFT:
                 bMoveCamLeft = true; break;
             case GLFW_KEY_RIGHT:
@@ -72,6 +66,18 @@ public class Main extends Jem {
                 bMoveCamUp = false; break;
             case GLFW_KEY_DOWN:
                 bMoveCamDown = false; break;
+        }
+    }
+    @Override
+    public void mousePressed(int key) {
+        if(key == GLFW_MOUSE_BUTTON_1){
+            float x = getMouseX(), y = getMouseY();
+            animate((t) -> {
+                ((RadialColor)circle.getShader())
+                        .setOuterColor(new Vec4(0.6f,0.6f,1f,1-t));
+                circle.setRadius(t);
+                circle.setTranslation(new Vec3(x, y, 0f));
+            }, .4f);
         }
     }
 

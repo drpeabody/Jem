@@ -123,15 +123,15 @@ public abstract class Shader {
 
     public void updateTranslation(float f[]){
         use();
-        glUniformMatrix4fv(transMatLoc, false, f);
+        glUniformMatrix4fv(transMatLoc, true, f);
     }
     public void updateRotation(float f[]){
         use();
-        glUniformMatrix4fv(rotMatLoc, false, f);
+        glUniformMatrix4fv(rotMatLoc, true, f);
     }
     public void updateScaling(float f[]){
         use();
-        glUniformMatrix4fv(scaleMatLoc, false, f);
+        glUniformMatrix4fv(scaleMatLoc, true, f);
     }
     public void updateCamera(float f[]){
         use();

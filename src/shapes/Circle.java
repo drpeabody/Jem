@@ -22,6 +22,11 @@ public class Circle extends Shape {
         this.res = (res > 2)? res: 3;
     }
 
+    public void setRadius(float r){
+        scaling.set(r);
+        getShader().updateScaling(getScalingMatrix(scaling));
+    }
+
     @Override
     public float[] generateBuffer() {
         int num = getNumVertices();

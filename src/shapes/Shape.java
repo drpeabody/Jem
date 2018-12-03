@@ -8,7 +8,7 @@ import util.Vec3;
 
 public abstract class Shape {
 
-    private Vec3 translation, rotation, scaling;
+    protected Vec3 translation, rotation, scaling;
     private Shader shader;
     private int vbo;
 
@@ -23,6 +23,7 @@ public abstract class Shape {
     public abstract float[] generateBuffer();
     public abstract int getNumVertices();
     public abstract int getDrawMode();
+//    public abstract boolean contains(float x, float y);
 
     private void uploadBuffer(float f[]){
         if(vbo == -1)
@@ -41,7 +42,12 @@ public abstract class Shape {
         shader.unbind();
     }
 
-    private static float[] getTranslationMatrix(Vec3 v){
+    public void setTranslation(Vec3 v){
+        translation.set(v);
+        shader.updateTranslation(getTranslationMatrix(translation));
+    }
+
+    protected static float[] getTranslationMatrix(Vec3 v){
         return new float[] {
                 1.0f, 0.0f, 0.0f, v.getX(),
                 0.0f, 1.0f, 0.0f, v.getY(),
@@ -49,7 +55,7 @@ public abstract class Shape {
                 0.0f, 0.0f, 0.0f, 1.0f
         };
     }
-    private static float[] getRotationMatrix(Vec3 v){
+    protected static float[] getRotationMatrix(Vec3 v){
         float cRx = (float)Math.cos(v.getX());
         float cRy = (float)Math.cos(v.getY());
         float cRz = (float)Math.cos(v.getZ());
@@ -63,7 +69,7 @@ public abstract class Shape {
                 0.0f, 0.0f, 0.0f, 1.0f
         };
     }
-    private static float[] getScalingMatrix(Vec3 v){
+    protected static float[] getScalingMatrix(Vec3 v){
         return new float[] {
                 v.getX(), 0.0f, 0.0f, 0.0f,
                 0.0f, v.getY(), 0.0f, 0.0f,

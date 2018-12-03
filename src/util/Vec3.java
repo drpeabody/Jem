@@ -64,4 +64,13 @@ public class Vec3 {
         return x*x + y*y + z*z;
     }
 
+    public void set(float f){
+        x = y = z = f;
+    }
+    public void set(Vec3 v) {
+        x = v.x;
+        y = v.y;
+        z = v.z;
+    }
+
 }

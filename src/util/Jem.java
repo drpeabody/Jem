@@ -1,6 +1,8 @@
 package util;
 
+import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import shader.Shader;
@@ -22,6 +24,7 @@ public abstract class Jem {
     private HashMap<Shader, ArrayList<Shape>> table;
     private float time;
     private CopyOnWriteArrayList<Animator> anims;
+    private float mouseX, mouseY;
 
     public Jem(Camera c){
         window = -1L;
@@ -87,10 +90,19 @@ public abstract class Jem {
                 (vidmode.height() - pHeight[0]) / 2
         );
 
+        glfwSetCursorPosCallback(window, (window, x, y) -> {
+            mouseX = ((2*(float)x - camera.getScreenWidth()) / camera.getScreenHeight());
+            mouseY = -(float) (2 * y / camera.getScreenHeight()) + 1f;
+            mouseMoved(mouseX, mouseY);
+        });
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
             if(action == GLFW_PRESS) keyPressed(key);
             else if(action == GLFW_RELEASE) keyReleased(key);
         });
+        glfwSetMouseButtonCallback(window, (window, key, action, mods) -> {
+                if(action == GLFW_PRESS) mousePressed(key);
+                else if(action == GLFW_RELEASE) mouseReleased(key);
+            });
 
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1);
@@ -114,6 +126,17 @@ public abstract class Jem {
     public void keyReleased(int key){
 
     }
+    public void mouseMoved(float x, float y){
+
+    }
+    public void mousePressed(int key){}
+    public void mouseReleased(int key){}
+    public float getMouseX(){
+        return mouseX;
+    }
+    public float getMouseY(){
+        return mouseY;
+    }
 
     public void run() {
         init();
@@ -122,7 +145,6 @@ public abstract class Jem {
     }
 
     private void draw(){
-        long l = System.currentTimeMillis();
         anims.forEach(s -> {
             boolean completed  = s.update(time);
             if(completed){
@@ -136,7 +158,7 @@ public abstract class Jem {
             shader.updateCamera(camera.getMatrix());
             shapes.forEach(Shape::draw);
         });
-        time += (float)(System.currentTimeMillis() - l) / 100f;
+        time += 0.01*(1/60f); //Since VSync is on, we assume 60fps;
     }
     private void loop(){
         while ( !glfwWindowShouldClose(getWindow()) ) {
